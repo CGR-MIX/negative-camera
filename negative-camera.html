@@ -1,0 +1,2519 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+     <title>专业负片相机 - 小米增强版</title>
+     <style>
+          * {
+               margin: 0;
+               padding: 0;
+               box-sizing: border-box;
+               -webkit-tap-highlight-color: transparent;
+          }
+
+          body {
+               font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+               background: #0a0a0a;
+               color: #fff;
+               height: 100vh;
+               overflow: hidden;
+               display: flex;
+               flex-direction: column;
+          }
+
+          /* 现代化UI设计系统 */
+          :root {
+               --primary: #3b82f6;
+               --primary-dark: #2563eb;
+               --bg-dark: #0a0a0a;
+               --bg-card: rgba(20, 20, 20, 0.95);
+               --border: rgba(255, 255, 255, 0.1);
+               --text-primary: #ffffff;
+               --text-secondary: #a0a0a0;
+               --success: #22c55e;
+               --warning: #f59e0b;
+               --error: #ef4444;
+               --radius: 12px;
+               --radius-sm: 8px;
+               --shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+          }
+
+          /*毛玻璃效果 */
+          .glass {
+               background: rgba(20, 20, 20, 0.8);
+               backdrop-filter: blur(20px);
+               -webkit-backdrop-filter: blur(20px);
+               border: 1px solid var(--border);
+          }
+
+          /* 权限请求界面 */
+          #permissionScreen {
+               position: fixed;
+               inset: 0;
+               z-index: 2000;
+               display: flex;
+               flex-direction: column;
+               align-items: center;
+               justify-content: center;
+               padding: 30px;
+               background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+          }
+
+          .hero-card {
+               background: var(--bg-card);
+               border-radius: var(--radius);
+               padding: 30px;
+               max-width: 450px;
+               width: 100%;
+               text-align: center;
+               border: 1px solid var(--border);
+               box-shadow: var(--shadow);
+          }
+
+          .app-icon {
+               width: 80px;
+               height: 80px;
+               border-radius: 20px;
+               background: linear-gradient(135deg, var(--primary), #8b5cf6);
+               margin: 0 auto 20px;
+               display: flex;
+               align-items: center;
+               justify-content: center;
+               font-size: 36px;
+               box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+          }
+
+          .hero-title {
+               font-size: 28px;
+               font-weight: 700;
+               margin-bottom: 10px;
+               letter-spacing: -0.5px;
+          }
+
+          .hero-subtitle {
+               color: var(--text-secondary);
+               font-size: 14px;
+               line-height: 1.6;
+               margin-bottom: 20px;
+          }
+
+          .feature-grid {
+               display: grid;
+               grid-template-columns: 1fr 1fr;
+               gap: 12px;
+               margin: 20px 0;
+               text-align: left;
+          }
+
+          .feature-item {
+               background: rgba(255, 255, 255, 0.03);
+               padding: 12px;
+               border-radius: var(--radius-sm);
+               font-size: 12px;
+               color: var(--text-secondary);
+               border: 1px solid var(--border);
+          }
+
+          .feature-item strong {
+               color: var(--text-primary);
+               display: block;
+               margin-bottom: 4px;
+               font-size: 13px;
+          }
+
+          .btn-primary {
+               width: 100%;
+               padding: 16px;
+               background: var(--primary);
+               color: white;
+               border: none;
+               border-radius: var(--radius);
+               font-size: 16px;
+               font-weight: 600;
+               cursor: pointer;
+               transition: all 0.2s;
+               margin-top: 10px;
+               box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+          }
+
+          .btn-primary:active {
+               transform: scale(0.98);
+               background: var(--primary-dark);
+          }
+
+          .btn-primary:disabled {
+               background: #333;
+               cursor: not-allowed;
+               box-shadow: none;
+          }
+
+          .btn-secondary {
+               width: 100%;
+               padding: 12px;
+               background: transparent;
+               color: var(--text-primary);
+               border: 1px solid var(--border);
+               border-radius: var(--radius);
+               font-size: 14px;
+               cursor: pointer;
+               margin-top: 8px;
+          }
+
+          .error-card {
+               background: rgba(239, 68, 68, 0.1);
+               border: 1px solid var(--error);
+               color: #fca5a5;
+               padding: 15px;
+               border-radius: var(--radius);
+               margin-top: 15px;
+               text-align: left;
+               font-size: 13px;
+               display: none;
+          }
+
+          .error-card.show {
+               display: block;
+          }
+
+          .error-card ul {
+               margin-left: 18px;
+               margin-top: 8px;
+               line-height: 1.6;
+          }
+
+          /* 主应用界面 */
+          #appUI {
+               display: none;
+               flex-direction: column;
+               height: 100vh;
+          }
+
+          /* 顶部导航 */
+          .top-bar {
+               padding: 12px 16px;
+               display: flex;
+               align-items: center;
+               justify-content: space-between;
+               gap: 10px;
+               z-index: 100;
+               background: rgba(10, 10, 10, 0.6);
+               backdrop-filter: blur(15px);
+               border-bottom: 1px solid var(--border);
+          }
+
+          .brand {
+               font-weight: 700;
+               font-size: 16px;
+               letter-spacing: -0.3px;
+               display: flex;
+               align-items: center;
+               gap: 8px;
+          }
+
+          .brand-badge {
+               background: linear-gradient(135deg, #ff6900, #ff9100);
+               padding: 2px 6px;
+               border-radius: 4px;
+               font-size: 10px;
+               font-weight: 700;
+               color: white;
+               text-transform: uppercase;
+          }
+
+          .top-actions {
+               display: flex;
+               gap: 8px;
+          }
+
+          .icon-btn {
+               width: 40px;
+               height: 40px;
+               border-radius: 10px;
+               border: 1px solid var(--border);
+               background: rgba(255, 255, 255, 0.05);
+               color: var(--text-primary);
+               display: flex;
+               align-items: center;
+               justify-content: center;
+               cursor: pointer;
+               transition: all 0.15s;
+               font-size: 16px;
+               position: relative;
+          }
+
+          .icon-btn:active {
+               transform: scale(0.92);
+               background: rgba(255, 255, 255, 0.1);
+          }
+
+          .icon-btn.active {
+               background: var(--primary);
+               border-color: var(--primary);
+          }
+
+          .icon-btn::after {
+               content: attr(data-badge);
+               position: absolute;
+               top: -5px;
+               right: -5px;
+               background: var(--error);
+               color: white;
+               font-size: 10px;
+               padding: 2px 5px;
+               border-radius: 10px;
+               display: none;
+               font-weight: 700;
+          }
+
+          .icon-btn.has-badge::after {
+               display: block;
+          }
+
+          /* 视频区域 */
+          .camera-container {
+               flex: 1;
+               position: relative;
+               overflow: hidden;
+               background: #000;
+               display: flex;
+               align-items: center;
+               justify-content: center;
+          }
+
+          #videoElement {
+               display: none;
+          }
+
+          #canvasElement {
+               max-width: 100%;
+               max-height: 100%;
+               object-fit: contain;
+               image-rendering: -webkit-optimize-contrast;
+               transition: opacity 0.3s;
+          }
+
+          /*拍照闪光 */
+          .camera-flash {
+               position: absolute;
+               inset: 0;
+               background: white;
+               opacity: 0;
+               pointer-events: none;
+               z-index: 200;
+               transition: opacity 0.1s;
+          }
+
+          .camera-flash.active {
+               opacity: 0.9;
+               animation: flashPulse 0.3s ease-out;
+          }
+
+          @keyframes flashPulse {
+               0% {
+                    opacity: 0;
+               }
+
+               50% {
+                    opacity: 0.8;
+               }
+
+               100% {
+                    opacity: 0;
+               }
+          }
+
+          /* 状态叠加层 */
+          .status-overlay {
+               position: absolute;
+               inset: 0;
+               background: rgba(0, 0, 0, 0.85);
+               display: none;
+               align-items: center;
+               justify-content: center;
+               flex-direction: column;
+               z-index: 150;
+               backdrop-filter: blur(10px);
+          }
+
+          .status-overlay.show {
+               display: flex;
+          }
+
+          .spinner {
+               width: 48px;
+               height: 48px;
+               border: 3px solid rgba(255, 255, 255, 0.2);
+               border-top-color: var(--primary);
+               border-radius: 50%;
+               animation: spin 1s linear infinite;
+               margin-bottom: 16px;
+          }
+
+          @keyframes spin {
+               to {
+                    transform: rotate(360deg);
+               }
+          }
+
+          .status-text {
+               font-size: 14px;
+               color: var(--text-secondary);
+               text-align: center;
+               max-width: 80%;
+          }
+
+          /* 底部控制面板 */
+          .control-panel {
+               background: var(--bg-card);
+               border-top: 1px solid var(--border);
+               padding: 16px;
+               display: flex;
+               flex-direction: column;
+               gap: 12px;
+               max-height: 55vh;
+               overflow-y: auto;
+               transition: transform 0.3s ease;
+          }
+
+          .control-panel.collapsed {
+               transform: translateY(calc(100% - 60px));
+          }
+
+          .panel-header {
+               display: flex;
+               align-items: center;
+               justify-content: space-between;
+               padding-bottom: 8px;
+               border-bottom: 1px solid var(--border);
+               cursor: pointer;
+               user-select: none;
+          }
+
+          .panel-title {
+               font-size: 14px;
+               font-weight: 600;
+               letter-spacing: 0.3px;
+          }
+
+          .collapse-indicator {
+               transition: transform 0.3s;
+               font-size: 12px;
+               color: var(--text-secondary);
+          }
+
+          .control-panel.collapsed .collapse-indicator {
+               transform: rotate(180deg);
+          }
+
+          /* 滤镜选择器 */
+          .filter-scroll {
+               display: flex;
+               gap: 8px;
+               overflow-x: auto;
+               padding: 4px 0;
+               scrollbar-width: none;
+               -ms-overflow-style: none;
+          }
+
+          .filter-scroll::-webkit-scrollbar {
+               display: none;
+          }
+
+          .filter-chip {
+               flex-shrink: 0;
+               padding: 8px 16px;
+               border-radius: 20px;
+               background: rgba(255, 255, 255, 0.05);
+               border: 1px solid var(--border);
+               color: var(--text-primary);
+               font-size: 13px;
+               cursor: pointer;
+               transition: all 0.2s;
+               white-space: nowrap;
+          }
+
+          .filter-chip.active {
+               background: var(--primary);
+               border-color: var(--primary);
+               box-shadow: 0 2px 10px rgba(59, 130, 246, 0.3);
+          }
+
+          .filter-chip:active {
+               transform: scale(0.95);
+          }
+
+          /* 参数控制组 */
+          .param-group {
+               display: grid;
+               grid-template-columns: 1fr;
+               gap: 12px;
+               padding: 8px 0;
+          }
+
+          .param-item {
+               background: rgba(255, 255, 255, 0.03);
+               border: 1px solid var(--border);
+               border-radius: var(--radius-sm);
+               padding: 10px;
+          }
+
+          .param-header {
+               display: flex;
+               justify-content: space-between;
+               align-items: center;
+               margin-bottom: 8px;
+          }
+
+          .param-label {
+               font-size: 12px;
+               color: var(--text-secondary);
+               font-weight: 500;
+          }
+
+          .param-value {
+               font-size: 12px;
+               color: var(--primary);
+               font-weight: 700;
+               min-width: 32px;
+               text-align: right;
+          }
+
+          .param-slider {
+               width: 100%;
+               height: 6px;
+               border-radius: 3px;
+               background: rgba(255, 255, 255, 0.1);
+               outline: none;
+               -webkit-appearance: none;
+               appearance: none;
+               cursor: pointer;
+          }
+
+          .param-slider::-webkit-slider-thumb {
+               -webkit-appearance: none;
+               width: 18px;
+               height: 18px;
+               border-radius: 50%;
+               background: var(--primary);
+               border: 2px solid white;
+               box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+               transition: transform 0.1s;
+          }
+
+          .param-slider::-webkit-slider-thumb:active {
+               transform: scale(1.2);
+          }
+
+          .param-slider::-moz-range-thumb {
+               width: 18px;
+               height: 18px;
+               border-radius: 50%;
+               background: var(--primary);
+               border: 2px solid white;
+               box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+          }
+
+          /* 曲线编辑器 */
+          .curve-editor {
+               background: rgba(0, 0, 0, 0.3);
+               border-radius: var(--radius-sm);
+               padding: 12px;
+               margin-top: 8px;
+               border: 1px solid var(--border);
+          }
+
+          #curveCanvas {
+               width: 100%;
+               height: 100px;
+               background: rgba(0, 0, 0, 0.5);
+               border-radius: var(--radius-sm);
+               cursor: crosshair;
+               display: block;
+          }
+
+          .curve-controls {
+               display: flex;
+               gap: 6px;
+               margin-top: 8px;
+               flex-wrap: wrap;
+          }
+
+          .curve-btn {
+               padding: 6px 10px;
+               background: rgba(255, 255, 255, 0.05);
+               border: 1px solid var(--border);
+               border-radius: var(--radius-sm);
+               font-size: 11px;
+               color: var(--text-primary);
+               cursor: pointer;
+               transition: all 0.2s;
+               flex: 1;
+               min-width: 60px;
+               text-align: center;
+          }
+
+          .curve-btn.active {
+               background: var(--primary);
+               border-color: var(--primary);
+          }
+
+          .curve-btn:active {
+               transform: scale(0.95);
+          }
+
+          /* 预设按钮 */
+          .preset-grid {
+               display: grid;
+               grid-template-columns: repeat(3, 1fr);
+               gap: 8px;
+               margin-top: 8px;
+          }
+
+          .preset-btn {
+               padding: 10px;
+               background: rgba(255, 255, 255, 0.03);
+               border: 1px solid var(--border);
+               border-radius: var(--radius-sm);
+               font-size: 11px;
+               text-align: center;
+               cursor: pointer;
+               transition: all 0.2s;
+               color: var(--text-primary);
+          }
+
+          .preset-btn:hover {
+               background: rgba(255, 255, 255, 0.08);
+          }
+
+          .preset-btn:active {
+               transform: scale(0.95);
+          }
+
+          /* 拍摄控制栏 */
+          .capture-bar {
+               display: flex;
+               align-items: center;
+               justify-content: center;
+               gap: 16px;
+               padding: 12px;
+               background: var(--bg-card);
+               border-top: 1px solid var(--border);
+          }
+
+          .capture-button {
+               width: 72px;
+               height: 72px;
+               border-radius: 50%;
+               border: 3px solid var(--text-primary);
+               background: transparent;
+               position: relative;
+               cursor: pointer;
+               transition: all 0.15s;
+               flex-shrink: 0;
+          }
+
+          .capture-button::after {
+               content: '';
+               position: absolute;
+               top: 50%;
+               left: 50%;
+               transform: translate(-50%, -50%);
+               width: 58px;
+               height: 58px;
+               background: var(--text-primary);
+               border-radius: 50%;
+               transition: all 0.15s;
+          }
+
+          .capture-button:active {
+               transform: scale(0.95);
+          }
+
+          .capture-button:active::after {
+               width: 52px;
+               height: 52px;
+          }
+
+          .capture-button:disabled {
+               opacity: 0.5;
+               cursor: not-allowed;
+          }
+
+          .secondary-action {
+               width: 44px;
+               height: 44px;
+               border-radius: 12px;
+               border: 1px solid var(--border);
+               background: rgba(255, 255, 255, 0.05);
+               color: var(--text-primary);
+               display: flex;
+               align-items: center;
+               justify-content: center;
+               cursor: pointer;
+               font-size: 18px;
+               transition: all 0.2s;
+          }
+
+          .secondary-action:active {
+               transform: scale(0.9);
+               background: rgba(255, 255, 255, 0.1);
+          }
+
+          /* 小米协同面板 */
+          .mi-sync-panel {
+               background: rgba(255, 105, 0, 0.05);
+               border: 1px solid rgba(255, 105, 0, 0.3);
+               border-radius: var(--radius);
+               padding: 12px;
+               margin-top: 8px;
+          }
+
+          .mi-sync-header {
+               display: flex;
+               align-items: center;
+               justify-content: space-between;
+               margin-bottom: 8px;
+          }
+
+          .mi-logo {
+               font-weight: 800;
+               color: #ff6900;
+               font-size: 14px;
+               display: flex;
+               align-items: center;
+               gap: 6px;
+          }
+
+          .mi-status {
+               font-size: 11px;
+               padding: 4px 8px;
+               border-radius: 10px;
+               background: rgba(255, 105, 0, 0.2);
+               color: #ff9100;
+               font-weight: 600;
+          }
+
+          .mi-status.connected {
+               background: rgba(34, 197, 94, 0.2);
+               color: var(--success);
+          }
+
+          .mi-controls {
+               display: grid;
+               grid-template-columns: repeat(2, 1fr);
+               gap: 8px;
+               margin-top: 8px;
+          }
+
+          .mi-btn {
+               padding: 8px;
+               background: rgba(255, 105, 0, 0.1);
+               border: 1px solid rgba(255, 105, 0, 0.3);
+               border-radius: var(--radius-sm);
+               font-size: 11px;
+               color: #ff9100;
+               cursor: pointer;
+               transition: all 0.2s;
+               text-align: center;
+               font-weight: 600;
+          }
+
+          .mi-btn:hover {
+               background: rgba(255, 105, 0, 0.2);
+          }
+
+          .mi-btn:active {
+               transform: scale(0.95);
+          }
+
+          .mi-btn.connected {
+               background: rgba(34, 197, 94, 0.1);
+               border-color: var(--success);
+               color: var(--success);
+          }
+
+          .mi-device-list {
+               margin-top: 8px;
+               padding: 8px;
+               background: rgba(0, 0, 0, 0.3);
+               border-radius: var(--radius-sm);
+               font-size: 12px;
+               color: var(--text-secondary);
+               display: none;
+          }
+
+          .mi-device-list.show {
+               display: block;
+          }
+
+          /*通知提示 */
+          .toast {
+               position: fixed;
+               bottom: 80px;
+               left: 50%;
+               transform: translateX(-50%) translateY(20px);
+               padding: 12px 20px;
+               background: var(--bg-card);
+               border: 1px solid var(--border);
+               border-radius: var(--radius);
+               font-size: 13px;
+               opacity: 0;
+               transition: all 0.3s;
+               z-index: 3000;
+               pointer-events: none;
+               white-space: nowrap;
+               box-shadow: var(--shadow);
+               backdrop-filter: blur(10px);
+          }
+
+          .toast.show {
+               opacity: 1;
+               transform: translateX(-50%) translateY(0);
+          }
+
+          .toast.success {
+               border-color: var(--success);
+               color: var(--success);
+          }
+
+          .toast.error {
+               border-color: var(--error);
+               color: var(--error);
+          }
+
+          .toast.info {
+               border-color: var(--primary);
+               color: var(--primary);
+          }
+
+          /* 性能监控 */
+          .perf-monitor {
+               position: absolute;
+               top: 60px;
+               left: 12px;
+               background: rgba(0, 0, 0, 0.7);
+               padding: 8px 12px;
+               border-radius: var(--radius-sm);
+               font-size: 11px;
+               font-family: 'Courier New', monospace;
+               color: var(--text-secondary);
+               border: 1px solid var(--border);
+               display: none;
+               z-index: 50;
+          }
+
+          .perf-monitor.show {
+               display: block;
+          }
+
+          .perf-item {
+               display: flex;
+               gap: 8px;
+          }
+
+          .perf-value {
+               color: var(--primary);
+               font-weight: 700;
+          }
+
+          /* 响应式 */
+          @media (max-width: 600px) {
+               .feature-grid {
+                    grid-template-columns: 1fr;
+               }
+
+               .preset-grid {
+                    grid-template-columns: repeat(2, 1fr);
+               }
+
+               .mi-controls {
+                    grid-template-columns: 1fr;
+               }
+
+               .capture-button {
+                    width: 68px;
+                    height: 68px;
+               }
+
+               .capture-button::after {
+                    width: 54px;
+                    height: 54px;
+               }
+          }
+
+          /*动画 */
+          @keyframes fadeIn {
+               from {
+                    opacity: 0;
+                    transform: translateY(10px);
+               }
+
+               to {
+                    opacity: 1;
+                    transform: translateY(0);
+               }
+          }
+
+          .fade-in {
+               animation: fadeIn 0.3s ease-out;
+          }
+
+          /* 滚动条美化 */
+          ::-webkit-scrollbar {
+               width: 4px;
+               height: 4px;
+          }
+
+          ::-webkit-scrollbar-track {
+               background: transparent;
+          }
+
+          ::-webkit-scrollbar-thumb {
+               background: rgba(255, 255, 255, 0.2);
+               border-radius: 2px;
+          }
+
+          ::-webkit-scrollbar-thumb:hover {
+               background: rgba(255, 255, 255, 0.3);
+          }
+
+          /* 禁用选择 */
+          .no-select {
+               user-select: none;
+               -webkit-user-select: none;
+               -moz-user-select: none;
+               -ms-user-select: none;
+          }
+     </style>
+</head>
+
+<body>
+
+     <!-- 权限请求屏幕 -->
+     <div id="permissionScreen">
+          <div class="hero-card fade-in">
+               <div class="app-icon">📸</div>
+               <h1 class="hero-title">专业负片相机</h1>
+               <p class="hero-subtitle">实时负片处理 + 小米摄像头协同增强</p>
+
+               <div class="feature-grid">
+                    <div class="feature-item">
+                         <strong>实时处理</strong>
+                         毫秒级负片转换
+                    </div>
+                    <div class="feature-item">
+                         <strong>高级调节</strong>
+                         亮度/对比度/HSL/曲线
+                    </div>
+                    <div class="feature-item">
+                         <strong>小米协同</strong>
+                         跨设备摄像头控制
+                    </div>
+                    <div class="feature-item">
+                         <strong>专业输出</strong>
+                         高清无损保存
+                    </div>
+               </div>
+
+               <div class="error-card" id="errorCard">
+                    <strong>⚠️ 检测到问题</strong>
+                    <ul id="errorList"></ul>
+               </div>
+
+               <button id="startBtn" class="btn-primary">开始使用</button>
+               <button id="miSyncBtn" class="btn-secondary">📡连接小米设备</button>
+               <div id="loading" style="display:none; margin-top:15px;">
+                    <div class="spinner" style="margin: 0 auto 10px;"></div>
+                    <div style="font-size:12px; color:var(--text-secondary);">正在初始化...</div>
+               </div>
+          </div>
+     </div>
+
+     <!-- 主应用界面 -->
+     <div id="appUI">
+          <!-- 顶部栏 -->
+          <div class="top-bar glass">
+               <div class="brand">
+                    <span>负片相机</span>
+                    <span class="brand-badge">Pro</span>
+                    <span id="miStatusBadge"
+                         style="display:none; margin-left:8px; font-size:10px; padding:2px 6px; background:#ff6900; border-radius:4px;">MI</span>
+               </div>
+               <div class="top-actions">
+                    <button class="icon-btn" id="perfBtn" title="性能监控">📊</button>
+                    <button class="icon-btn" id="miSyncTopBtn" title="小米协同">📡</button>
+                    <button class="icon-btn" id="settingsBtn" title="设置">⚙️</button>
+               </div>
+          </div>
+
+          <!-- 摄像头区域 -->
+          <div class="camera-container">
+               <video id="videoElement" autoplay playsinline></video>
+               <canvas id="canvasElement"></canvas>
+
+               <!-- 闪光灯覆盖 -->
+               <div class="camera-flash" id="cameraFlash"></div>
+
+               <!-- 状态叠加层 -->
+               <div class="status-overlay" id="statusOverlay">
+                    <div class="spinner"></div>
+                    <div class="status-text" id="statusText">正在初始化...</div>
+               </div>
+
+               <!-- 性能监控 -->
+               <div class="perf-monitor" id="perfMonitor">
+                    <div class="perf-item">FPS: <span class="perf-value" id="fpsValue">--</span></div>
+                    <div class="perf-item">延时: <span class="perf-value" id="latencyValue">--</span>ms</div>
+                    <div class="perf-item">处理: <span class="perf-value" id="processingValue">--</span>ms</div>
+               </div>
+          </div>
+
+          <!-- 底部控制面板 -->
+          <div class="control-panel glass" id="controlPanel">
+               <!-- 面板头部 -->
+               <div class="panel-header" id="panelToggle">
+                    <span class="panel-title">控制面板</span>
+                    <span class="collapse-indicator">▼</span>
+               </div>
+
+               <!-- 内容区域 -->
+               <div id="panelContent">
+                    <!-- 滤镜选择 -->
+                    <div class="param-item">
+                         <div class="param-header">
+                              <span class="param-label">滤镜效果</span>
+                         </div>
+                         <div class="filter-scroll" id="filterContainer">
+                              <div class="filter-chip active" data-filter="normal">标准负片</div>
+                              <div class="filter-chip" data-filter="bw">黑白负片</div>
+                              <div class="filter-chip" data-filter="high">高对比度</div>
+                              <div class="filter-chip" data-filter="invert">反相增强</div>
+                              <div class="filter-chip" data-filter="none">原图</div>
+                         </div>
+                    </div>
+
+                    <!-- 基础参数 -->
+                    <div class="param-group">
+                         <div class="param-item">
+                              <div class="param-header">
+                                   <span class="param-label">💡 亮度</span>
+                                   <span class="param-value" id="brightnessValue">0</span>
+                              </div>
+                              <input type="range" class="param-slider" id="brightness" min="-100" max="100" value="0"
+                                   step="1">
+                         </div>
+
+                         <div class="param-item">
+                              <div class="param-header">
+                                   <span class="param-label">🎨 对比度</span>
+                                   <span class="param-value" id="contrastValue">0</span>
+                              </div>
+                              <input type="range" class="param-slider" id="contrast" min="-100" max="100" value="0"
+                                   step="1">
+                         </div>
+
+                         <div class="param-item">
+                              <div class="param-header">
+                                   <span class="param-label">🌈 饱和度</span>
+                                   <span class="param-value" id="saturationValue">0</span>
+                              </div>
+                              <input type="range" class="param-slider" id="saturation" min="-100" max="100" value="0"
+                                   step="1">
+                         </div>
+                    </div>
+
+                    <!-- HSL调整 -->
+                    <div class="param-group" id="hslGroup" style="display:none;">
+                         <div class="param-item">
+                              <div class="param-header">
+                                   <span class="param-label">🎯 色相</span>
+                                   <span class="param-value" id="hueValue">0</span>
+                              </div>
+                              <input type="range" class="param-slider" id="hue" min="0" max="360" value="0" step="1">
+                         </div>
+
+                         <div class="param-item">
+                              <div class="param-header">
+                                   <span class="param-label">💡 明度</span>
+                                   <span class="param-value" id="lightnessValue">0</span>
+                              </div>
+                              <input type="range" class="param-slider" id="lightness" min="-100" max="100" value="0"
+                                   step="1">
+                         </div>
+                    </div>
+
+                    <!-- 颜色曲线 -->
+                    <div class="param-item">
+                         <div class="param-header">
+                              <span class="param-label">📈 颜色曲线</span>
+                              <span class="param-value" id="curveStrengthValue">1.0</span>
+                         </div>
+                         <div class="curve-editor">
+                              <canvas id="curveCanvas" width="350" height="100"></canvas>
+                              <div class="curve-controls">
+                                   <button class="curve-btn" data-curve="linear">线性</button>
+                                   <button class="curve-btn" data-curve="s">S型</button>
+                                   <button class="curve-btn" data-curve="inverse">反相</button>
+                                   <button class="curve-btn" data-curve="gamma">伽马</button>
+                                   <button class="curve-btn" data-curve="custom">自定义</button>
+                                   <button class="curve-btn" data-curve="reset">重置</button>
+                              </div>
+                              <input type="range" class="param-slider" id="curveStrength" min="0" max="2" value="1"
+                                   step="0.1" style="margin-top:8px;">
+                         </div>
+                    </div>
+
+                    <!-- 高级效果 -->
+                    <div class="param-group" id="advancedGroup" style="display:none;">
+                         <div class="param-item">
+                              <div class="param-header">
+                                   <span class="param-label">✨ 锐化</span>
+                                   <span class="param-value" id="sharpenValue">0</span>
+                              </div>
+                              <input type="range" class="param-slider" id="sharpen" min="0" max="100" value="0"
+                                   step="1">
+                         </div>
+
+                         <div class="param-item">
+                              <div class="param-header">
+                                   <span class="param-label">🔇 降噪</span>
+                                   <span class="param-value" id="denoiseValue">0</span>
+                              </div>
+                              <input type="range" class="param-slider" id="denoise" min="0" max="100" value="0"
+                                   step="1">
+                         </div>
+                    </div>
+
+                    <!-- 预设 -->
+                    <div class="param-item">
+                         <div class="param-header">
+                              <span class="param-label">🎨 预设</span>
+                         </div>
+                         <div class="preset-grid">
+                              <button class="preset-btn" data-preset="vintage">复古</button>
+                              <button class="preset-btn" data-preset="cold">冷调</button>
+                              <button class="preset-btn" data-preset="warm">暖调</button>
+                              <button class="preset-btn" data-preset="dramatic">戏剧</button>
+                              <button class="preset-btn" data-preset="clear">清晰</button>
+                              <button class="preset-btn" data-preset="reset">重置</button>
+                         </div>
+                    </div>
+
+                    <!-- 小米协同 -->
+                    <div class="mi-sync-panel" id="miSyncPanel" style="display:none;">
+                         <div class="mi-sync-header">
+                              <div class="mi-logo">⚡ 小米协同</div>
+                              <div class="mi-status" id="miStatus">未连接</div>
+                         </div>
+                         <div class="mi-controls">
+                              <button class="mi-btn" id="miScanBtn">扫描设备</button>
+                              <button class="mi-btn" id="miConnectBtn">连接</button>
+                              <button class="mi-btn" id="miRemoteBtn">远程控制</button>
+                              <button class="mi-btn" id="miSyncParamsBtn">同步参数</button>
+                         </div>
+                         <div class="mi-device-list" id="miDeviceList">未检测到小米设备</div>
+                    </div>
+
+                    <!-- 摄像头控制 -->
+                    <div class="param-item">
+                         <div class="param-header">
+                              <span class="param-label">📹 摄像头</span>
+                         </div>
+                         <div style="display: flex; gap: 8px; margin-top: 8px;">
+                              <button class="curve-btn" id="switchCameraBtn">切换摄像头</button>
+                              <button class="curve-btn" id="toggleAdvancedBtn">显示高级</button>
+                              <button class="curve-btn" id="toggleHslBtn">显示HSL</button>
+                              <button class="curve-btn" id="resetAllBtn">全部重置</button>
+                         </div>
+                    </div>
+               </div>
+          </div>
+
+          <!-- 拍摄控制栏 -->
+          <div class="capture-bar glass">
+               <button class="secondary-action" id="flashBtn" title="闪光灯">⚡</button>
+               <button class="capture-button" id="captureBtn"></button>
+               <button class="secondary-action" id="downloadBtn" title="下载" style="display:none;">💾</button>
+          </div>
+     </div>
+
+     <!-- 小米设备搜索弹窗 -->
+     <div id="miDeviceModal"
+          style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:2500; align-items:center; justify-content:center; backdrop-filter:blur(5px);">
+          <div
+               style="background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:20px; width:90%; max-width:400px;">
+               <h3 style="margin-bottom:15px;">连接小米设备</h3>
+               <div id="miScanResult"
+                    style="min-height:100px; padding:10px; background:rgba(0,0,0,0.3); border-radius:var(--radius-sm); font-size:13px; color:var(--text-secondary);">
+                    正在扫描...
+               </div>
+               <div style="display:flex; gap:8px; margin-top:15px;">
+                    <button class="btn-primary" id="miModalConnect">连接</button>
+                    <button class="btn-secondary" id="miModalClose">关闭</button>
+               </div>
+          </div>
+     </div>
+
+     <!-- 提示框 -->
+     <div id="toast" class="toast"></div>
+
+     <script>
+          // ==================== 全局状态 ====================
+          const state = {
+               stream: null,
+               video: null,
+               canvas: null,
+               ctx: null,
+               animationId: null,
+               isProcessing: false,
+
+               // 摄像头
+               currentCamera: 'user',
+               flashMode: 'off',
+
+               // 滤镜和参数
+               currentFilter: 'normal',
+               params: {
+                    brightness: 0,
+                    contrast: 0,
+                    hue: 0,
+                    saturation: 0,
+                    lightness: 0,
+                    sharpen: 0,
+                    denoise: 0,
+                    curveStrength: 1.0
+               },
+
+               // 颜色曲线
+               curve: {
+                    enabled: false,
+                    points: [],
+                    type: 'linear'
+               },
+
+               // 性能监控
+               fps: 0,
+               latency: 0,
+               processingTime: 0,
+               frameCount: 0,
+               lastFrameTime: 0,
+               fpsUpdateTime: 0,
+
+               // 小米协同
+               miSync: {
+                    connected: false,
+                    device: null,
+                    ws: null,
+                    devices: []
+               },
+
+               // UI状态
+               ui: {
+                    collapsed: false,
+                    showAdvanced: false,
+                    showHsl: false,
+                    showPerf: false
+               },
+
+               // 拍照
+               capturedImage: null
+          };
+
+          // ==================== DOM 元素 ====================
+          const elements = {
+               //权限屏幕
+               permissionScreen: document.getElementById('permissionScreen'),
+               startBtn: document.getElementById('startBtn'),
+               miSyncBtn: document.getElementById('miSyncBtn'),
+               errorCard: document.getElementById('errorCard'),
+               errorList: document.getElementById('errorList'),
+               loading: document.getElementById('loading'),
+
+               // 主应用
+               appUI: document.getElementById('appUI'),
+               video: document.getElementById('videoElement'),
+               canvas: document.getElementById('canvasElement'),
+
+               // 状态
+               statusOverlay: document.getElementById('statusOverlay'),
+               statusText: document.getElementById('statusText'),
+               cameraFlash: document.getElementById('cameraFlash'),
+
+               // 性能
+               perfMonitor: document.getElementById('perfMonitor'),
+               perfBtn: document.getElementById('perfBtn'),
+               fpsValue: document.getElementById('fpsValue'),
+               latencyValue: document.getElementById('latencyValue'),
+               processingValue: document.getElementById('processingValue'),
+
+               // 顶部
+               miSyncTopBtn: document.getElementById('miSyncTopBtn'),
+               settingsBtn: document.getElementById('settingsBtn'),
+               miStatusBadge: document.getElementById('miStatusBadge'),
+
+               // 控制面板
+               controlPanel: document.getElementById('controlPanel'),
+               panelToggle: document.getElementById('panelToggle'),
+               panelContent: document.getElementById('panelContent'),
+
+               // 滤镜
+               filterContainer: document.getElementById('filterContainer'),
+
+               // 参数
+               brightness: document.getElementById('brightness'),
+               contrast: document.getElementById('contrast'),
+               saturation: document.getElementById('saturation'),
+               hue: document.getElementById('hue'),
+               lightness: document.getElementById('lightness'),
+               sharpen: document.getElementById('sharpen'),
+               denoise: document.getElementById('denoise'),
+               curveStrength: document.getElementById('curveStrength'),
+
+               // 参数值显示
+               brightnessValue: document.getElementById('brightnessValue'),
+               contrastValue: document.getElementById('contrastValue'),
+               saturationValue: document.getElementById('saturationValue'),
+               hueValue: document.getElementById('hueValue'),
+               lightnessValue: document.getElementById('lightnessValue'),
+               sharpenValue: document.getElementById('sharpenValue'),
+               denoiseValue: document.getElementById('denoiseValue'),
+               curveStrengthValue: document.getElementById('curveStrengthValue'),
+
+               // 曲线
+               curveCanvas: document.getElementById('curveCanvas'),
+               curveButtons: null, // 会在初始化时获取
+
+               // 高级显示切换
+               hslGroup: document.getElementById('hslGroup'),
+               advancedGroup: document.getElementById('advancedGroup'),
+               toggleAdvancedBtn: document.getElementById('toggleAdvancedBtn'),
+               toggleHslBtn: document.getElementById('toggleHslBtn'),
+
+               // 预设
+               presetButtons: null, // 会在初始化时获取
+
+               // 摄像头控制
+               switchCameraBtn: document.getElementById('switchCameraBtn'),
+               resetAllBtn: document.getElementById('resetAllBtn'),
+
+               // 拍摄控制
+               captureBtn: document.getElementById('captureBtn'),
+               flashBtn: document.getElementById('flashBtn'),
+               downloadBtn: document.getElementById('downloadBtn'),
+
+               // 小米协同
+               miSyncPanel: document.getElementById('miSyncPanel'),
+               miStatus: document.getElementById('miStatus'),
+               miScanBtn: document.getElementById('miScanBtn'),
+               miConnectBtn: document.getElementById('miConnectBtn'),
+               miRemoteBtn: document.getElementById('miRemoteBtn'),
+               miSyncParamsBtn: document.getElementById('miSyncParamsBtn'),
+               miDeviceList: document.getElementById('miDeviceList'),
+
+               // 小米弹窗
+               miDeviceModal: document.getElementById('miDeviceModal'),
+               miScanResult: document.getElementById('miScanResult'),
+               miModalConnect: document.getElementById('miModalConnect'),
+               miModalClose: document.getElementById('miModalClose'),
+
+               // 提示
+               toast: document.getElementById('toast')
+          };
+
+          // ==================== 工具函数 ====================
+          function showToast(message, type = 'success') {
+               elements.toast.textContent = message;
+               elements.toast.className = `toast show ${type}`;
+               setTimeout(() => elements.toast.classList.remove('show'), 3000);
+          }
+
+          function showStatus(message) {
+               elements.statusText.textContent = message;
+               elements.statusOverlay.classList.add('show');
+          }
+
+          function hideStatus() {
+               elements.statusOverlay.classList.remove('show');
+          }
+
+          function showError(errors) {
+               elements.errorCard.classList.add('show');
+               elements.errorList.innerHTML = errors.map(e => `<li>${e}</li>`).join('');
+          }
+
+          function hideError() {
+               elements.errorCard.classList.remove('show');
+          }
+
+          // ==================== 环境检查 ====================
+          function checkEnvironment() {
+               const issues = [];
+
+               // 检查HTTPS/localhost
+               const isSecure = location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+               if (!isSecure) {
+                    issues.push('必须通过HTTPS或localhost访问');
+                    issues.push(`当前: ${location.protocol} ${location.hostname}`);
+               }
+
+               // 检查API支持
+               if (!navigator.mediaDevices?.getUserMedia) {
+                    issues.push('浏览器不支持摄像头API');
+               }
+
+               if (!document.createElement('canvas').getContext) {
+                    issues.push('浏览器不支持Canvas');
+               }
+
+               // 检查浏览器类型
+               const ua = navigator.userAgent.toLowerCase();
+               if (ua.includes('micromessenger') || ua.includes('qq')) {
+                    issues.push('请使用系统自带浏览器（Chrome/Safari）');
+               }
+
+               if (issues.length > 0) {
+                    showError(issues);
+                    return false;
+               }
+
+               return true;
+          }
+
+          // ==================== 摄像头初始化 ====================
+          async function initCamera() {
+               if (!checkEnvironment()) return;
+
+               elements.startBtn.disabled = true;
+               elements.loading.style.display = 'block';
+               hideError();
+
+               try {
+                    showStatus('正在请求摄像头权限...');
+
+                    // 请求摄像头
+                    const stream = await navigator.mediaDevices.getUserMedia({
+                         video: {
+                              facingMode: state.currentCamera,
+                              width: { ideal: 1280 },
+                              height: { ideal: 720 },
+                              advanced: [{ exposureMode: 'continuous' }]
+                         },
+                         audio: false
+                    });
+
+                    state.stream = stream;
+                    state.video = elements.video;
+                    elements.video.srcObject = stream;
+
+                    await elements.video.play();
+
+                    // 等待视频准备好
+                    await new Promise(resolve => {
+                         if (elements.video.readyState >= 2) resolve();
+                         else elements.video.onloadedmetadata = resolve;
+                    });
+
+                    // 设置画布
+                    setupCanvas();
+
+                    // 切换界面
+                    elements.permissionScreen.style.display = 'none';
+                    elements.appUI.style.display = 'flex';
+
+                    // 开始处理
+                    startProcessing();
+
+                    // 初始化曲线编辑器
+                    initCurveEditor();
+
+                    showToast('相机启动成功', 'success');
+                    hideStatus();
+
+               } catch (error) {
+                    handleCameraError(error);
+               } finally {
+                    elements.startBtn.disabled = false;
+                    elements.loading.style.display = 'none';
+               }
+          }
+
+          function setupCanvas() {
+               const width = elements.video.videoWidth;
+               const height = elements.video.videoHeight;
+
+               elements.canvas.width = width;
+               elements.canvas.height = height;
+               state.canvas = elements.canvas;
+               state.ctx = elements.canvas.getContext('2d', { willReadFrequently: true });
+          }
+
+          function handleCameraError(error) {
+               console.error('相机错误:', error);
+               let messages = [];
+               if (error.name === 'NotAllowedError') {
+                    messages.push('权限被拒绝');
+                    messages.push('请在浏览器设置中启用摄像头权限');
+                    messages.push('iOS: 设置 → Safari → 相机 → 允许');
+                    messages.push('Android: 设置 → 应用 → 浏览器 → 权限 → 摄像头');
+               } else if (error.name === 'NotFoundError') {
+                    messages.push('未找到摄像头');
+                    messages.push('请确保设备有摄像头且已连接');
+               } else if (error.name === 'NotReadableError') {
+                    messages.push('摄像头被占用');
+                    messages.push('请关闭其他使用摄像头的应用（Zoom、微信等）');
+               } else if (error.name === 'SecurityError') {
+                    messages.push('安全限制');
+                    messages.push('必须通过HTTPS或localhost访问');
+                    messages.push('尝试使用ngrok: ngrok http 8000');
+               } else {
+                    messages.push(`错误: ${error.message}`);
+               }
+
+               showError(messages);
+               showToast('初始化失败', 'error');
+          }
+
+          // ==================== 图像处理 ====================
+          function startProcessing() {
+               if (state.animationId) {
+                    cancelAnimationFrame(state.animationId);
+               }
+
+               state.lastFrameTime = performance.now();
+               state.fpsUpdateTime = state.lastFrameTime;
+               state.frameCount = 0;
+
+               const processFrame = (timestamp) => {
+                    if (elements.video.paused || elements.video.ended) {
+                         state.animationId = requestAnimationFrame(processFrame);
+                         return;
+                    }
+
+                    // 计算帧间隔（简单帧率控制）
+                    const elapsed = timestamp - state.lastFrameTime;
+                    if (elapsed < 33) { // ~30fps上限
+                         state.animationId = requestAnimationFrame(processFrame);
+                         return;
+                    }
+
+                    const frameStart = performance.now();
+
+                    try {
+                         // 绘制视频帧
+                         state.ctx.drawImage(elements.video, 0, 0, state.canvas.width, state.canvas.height);
+
+                         // 获取像素数据
+                         const imageData = state.ctx.getImageData(0, 0, state.canvas.width, state.canvas.height);
+                         const data = imageData.data;
+
+                         // 应用滤镜
+                         if (state.currentFilter !== 'none') {
+                              applyFilter(data, state.currentFilter);
+                         }
+
+                         // 应用参数调整
+                         applyImageAdjustments(data);
+
+                         // 应用颜色曲线
+                         if (state.curve.enabled) {
+                              applyColorCurve(data);
+                         }
+
+                         // 应用锐化
+                         if (state.params.sharpen > 0) {
+                              applySharpen(imageData, state.params.sharpen / 100);
+                         }
+
+                         // 应用降噪（简化版）
+                         if (state.params.denoise > 0) {
+                              applySimpleDenoise(imageData, state.params.denoise / 100);
+                         }
+
+                         // 绘制结果
+                         state.ctx.putImageData(imageData, 0, 0);
+
+                    } catch (error) {
+                         console.error('处理错误:', error);
+                    }
+
+                    // 性能监控
+                    const frameEnd = performance.now();
+                    state.processingTime = frameEnd - frameStart;
+                    state.latency = frameEnd - timestamp;
+
+                    state.frameCount++;
+                    if (timestamp - state.fpsUpdateTime > 1000) {
+                         state.fps = state.frameCount;
+                         state.frameCount = 0;
+                         state.fpsUpdateTime = timestamp;
+
+                         // 更新UI
+                         if (state.ui.showPerf) {
+                              elements.fpsValue.textContent = state.fps;
+                              elements.latencyValue.textContent = state.latency.toFixed(1);
+                              elements.processingValue.textContent = state.processingTime.toFixed(1);
+                         }
+                    }
+
+                    state.lastFrameTime = timestamp;
+                    state.animationId = requestAnimationFrame(processFrame);
+               };
+
+               processFrame(0);
+          }
+
+          // ==================== 滤镜和调整 ====================
+          function applyFilter(data, filter) {
+               switch (filter) {
+                    case 'normal':
+                         for (let i = 0; i < data.length; i += 4) {
+                              data[i] = 255 - data[i];
+                              data[i + 1] = 255 - data[i + 1];
+                              data[i + 2] = 255 - data[i + 2];
+                         }
+                         break;
+                    case 'bw':
+                         for (let i = 0; i < data.length; i += 4) {
+                              const gray = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+                              const inverted = 255 - gray;
+                              data[i] = inverted;
+                              data[i + 1] = inverted;
+                              data[i + 2] = inverted;
+                         }
+                         break;
+                    case 'high':
+                         const contrast = 1.5;
+                         for (let i = 0; i < data.length; i += 4) {
+                              let r = contrast * (data[i] - 128) + 128;
+                              let g = contrast * (data[i + 1] - 128) + 128;
+                              let b = contrast * (data[i + 2] - 128) + 128;
+                              data[i] = Math.max(0, Math.min(255, 255 - r));
+                              data[i + 1] = Math.max(0, Math.min(255, 255 - g));
+                              data[i + 2] = Math.max(0, Math.min(255, 255 - b));
+                         }
+                         break;
+                    case 'invert':
+                         for (let i = 0; i < data.length; i += 4) {
+                              data[i] = Math.min(255, 255 - data[i] + 30);
+                              data[i + 1] = Math.min(255, 255 - data[i + 1] + 30);
+                              data[i + 2] = Math.min(255, 255 - data[i + 2] + 30);
+                         }
+                         break;
+               }
+          }
+
+          function applyImageAdjustments(data) {
+               const { brightness, contrast, saturation, lightness, hue } = state.params;
+
+               if (brightness === 0 && contrast === 0 && saturation === 0 && lightness === 0 && hue === 0) {
+                    return;
+               }
+
+               const bFactor = brightness * 2.55;
+               const cFactor = (259 * (contrast + 255)) / (255 * (259 - contrast));
+               const sFactor = (saturation / 100) + 1;
+               const lFactor = lightness * 2.55;
+               const hRotate = hue / 360;
+
+               for (let i = 0; i < data.length; i += 4) {
+                    let r = data[i];
+                    let g = data[i + 1];
+                    let b = data[i + 2];
+
+                    // 亮度
+                    r += bFactor;
+                    g += bFactor;
+                    b += bFactor;
+
+                    // 对比度
+                    r = cFactor * (r - 128) + 128;
+                    g = cFactor * (g - 128) + 128;
+                    b = cFactor * (b - 128) + 128;
+
+                    // 饱和度和明度
+                    if (saturation !== 0 || lightness !== 0) {
+                         const gray = (r + g + b) / 3;
+                         r = gray + (r - gray) * sFactor + lFactor;
+                         g = gray + (g - gray) * sFactor + lFactor;
+                         b = gray + (b - gray) * sFactor + lFactor;
+                    }
+
+                    // 色相
+                    if (hue !== 0) {
+                         const hsv = rgbToHsv(r, g, b);
+                         hsv.h = (hsv.h + hRotate) % 1;
+                         const rgb = hsvToRgb(hsv.h, hsv.s, hsv.v);
+                         r = rgb.r;
+                         g = rgb.g;
+                         b = rgb.b;
+                    }
+
+                    data[i] = Math.max(0, Math.min(255, r));
+                    data[i + 1] = Math.max(0, Math.min(255, g));
+                    data[i + 2] = Math.max(0, Math.min(255, b));
+               }
+          }
+
+          function applyColorCurve(data) {
+               if (!state.curve.points || state.curve.points.length === 0) return;
+
+               const strength = state.params.curveStrength;
+               const lut = new Uint8Array(256);
+
+               for (let i = 0; i < 256; i++) {
+                    lut[i] = applyCurveToValue(i, state.curve.points, strength);
+               }
+
+               for (let i = 0; i < data.length; i += 4) {
+                    data[i] = lut[data[i]];
+                    data[i + 1] = lut[data[i + 1]];
+                    data[i + 2] = lut[data[i + 2]];
+               }
+          }
+
+          function applyCurveToValue(value, points, strength) {
+               if (points.length === 0) return value;
+
+               //简单插值
+               let closest = points[0];
+               let minDist = Math.abs(value - closest.x);
+
+               for (const point of points) {
+                    const dist = Math.abs(value - point.x);
+                    if (dist < minDist) {
+                         minDist = dist;
+                         closest = point;
+                    }
+               }
+
+               const result = closest.y;
+               return Math.round(value + (result - value) * strength);
+          }
+
+          function applySharpen(imageData, amount) {
+               if (amount <= 0) return;
+
+               const width = imageData.width;
+               const height = imageData.height;
+               const data = imageData.data;
+               const original = new Uint8ClampedArray(data);
+
+               const kernel = [0, -amount, 0, -amount, 1 + 4 * amount, -amount, 0, -amount, 0];
+
+               for (let y = 1; y < height - 1; y++) {
+                    for (let x = 1; x < width - 1; x++) {
+                         for (let c = 0; c < 3; c++) {
+                              let sum = 0;
+                              for (let ky = -1; ky <= 1; ky++) {
+                                   for (let kx = -1; kx <= 1; kx++) {
+                                        const idx = ((y + ky) * width + (x + kx)) * 4 + c;
+                                        const kidx = (ky + 1) * 3 + (kx + 1);
+                                        sum += original[idx] * kernel[kidx];
+                                   }
+                              }
+                              const idx = (y * width + x) * 4 + c;
+                              data[idx] = Math.max(0, Math.min(255, sum));
+                         }
+                    }
+               }
+          }
+
+          function applySimpleDenoise(imageData, amount) {
+               if (amount <= 0) return;
+
+               const width = imageData.width;
+               const height = imageData.height;
+               const data = imageData.data;
+               const original = new Uint8ClampedArray(data);
+
+               for (let y = 1; y < height - 1; y++) {
+                    for (let x = 1; x < width - 1; x++) {
+                         for (let c = 0; c < 3; c++) {
+                              let sum = 0;
+                              let count = 0;
+
+                              for (let ky = -1; ky <= 1; ky++) {
+                                   for (let kx = -1; kx <= 1; kx++) {
+                                        const idx = ((y + ky) * width + (x + kx)) * 4 + c;
+                                        sum += original[idx];
+                                        count++;
+                                   }
+                              }
+
+                              const idx = (y * width + x) * 4 + c;
+                              const avg = sum / count;
+                              data[idx] = data[idx] * (1 - amount) + avg * amount;
+                         }
+                    }
+               }
+          }
+
+          // ==================== RGB/HSV 转换 ====================
+          function rgbToHsv(r, g, b) {
+               r /= 255; g /= 255; b /= 255;
+               const max = Math.max(r, g, b);
+               const min = Math.min(r, g, b);
+               const d = max - min;
+
+               let h = 0;
+               const s = max === 0 ? 0 : d / max;
+               const v = max;
+
+               if (max !== min) {
+                    switch (max) {
+                         case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+                         case g: h = ((b - r) / d + 2) / 6; break;
+                         case b: h = ((r - g) / d + 4) / 6; break;
+                    }
+               }
+
+               return { h, s, v };
+          }
+
+          function hsvToRgb(h, s, v) {
+               let r, g, b;
+               const i = Math.floor(h * 6);
+               const f = h * 6 - i;
+               const p = v * (1 - s);
+               const q = v * (1 - f * s);
+               const t = v * (1 - (1 - f) * s);
+
+               switch (i % 6) {
+                    case 0: r = v; g = t; b = p; break;
+                    case 1: r = q; g = v; b = p; break;
+                    case 2: r = p; g = v; b = t; break;
+                    case 3: r = p; g = q; b = v; break;
+                    case 4: r = t; g = p; b = v; break;
+                    case 5: r = v; g = p; b = q; break;
+               }
+
+               return {
+                    r: Math.round(r * 255),
+                    g: Math.round(g * 255),
+                    b: Math.round(b * 255)
+               };
+          }
+
+          // ==================== 曲线编辑器 ====================
+          function initCurveEditor() {
+               const canvas = elements.curveCanvas;
+               const ctx = canvas.getContext('2d');
+               const width = canvas.width;
+               const height = canvas.height;
+
+               // 绘制默认线性曲线
+               drawCurve(ctx, width, height, 'linear');
+
+               // 鼠标交互
+               let isDrawing = false;
+               let points = [];
+
+               canvas.addEventListener('mousedown', (e) => {
+                    isDrawing = true;
+                    points = [];
+                    const rect = canvas.getBoundingClientRect();
+                    const x = (e.clientX - rect.left) / rect.width * width;
+                    const y = (e.clientY - rect.top) / rect.height * height;
+                    points.push({ x, y });
+               });
+
+               canvas.addEventListener('mousemove', (e) => {
+                    if (!isDrawing) return;
+                    const rect = canvas.getBoundingClientRect();
+                    const x = (e.clientX - rect.left) / rect.width * width;
+                    const y = (e.clientY - rect.top) / rect.height * height;
+                    points.push({ x, y });
+                    drawCurve(ctx, width, height, 'custom', points);
+               });
+
+               canvas.addEventListener('mouseup', () => {
+                    if (isDrawing && points.length > 2) {
+                         isDrawing = false;
+                         state.curve.points = points.map(p => ({
+                              x: Math.round(p.x / width * 255),
+                              y: Math.round(255 - (p.y / height * 255))
+                         }));
+                         state.curve.enabled = true;
+                         state.curve.type = 'custom';
+                         showToast('自定义曲线已应用', 'success');
+                    }
+               });
+
+               // 曲线按钮
+               elements.curveButtons = document.querySelectorAll('.curve-btn');
+               elements.curveButtons.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                         const curve = btn.dataset.curve;
+
+                         if (curve === 'reset') {
+                              state.curve.enabled = false;
+                              state.curve.points = [];
+                              drawCurve(ctx, width, height, 'linear');
+                              showToast('曲线已重置', 'info');
+                              elements.curveButtons.forEach(b => b.classList.remove('active'));
+                              return;
+                         }
+
+                         elements.curveButtons.forEach(b => b.classList.remove('active'));
+                         btn.classList.add('active');
+
+                         if (curve === 'custom') {
+                              showToast('在画布上绘制曲线', 'info');
+                              return;
+                         }
+
+                         drawCurve(ctx, width, height, curve);
+                         state.curve.type = curve;
+                         state.curve.enabled = true;
+                         generateCurvePoints(curve);
+                         showToast(`已应用${curve}曲线`, 'success');
+                    });
+               });
+
+               // 曲线强度
+               elements.curveStrength.addEventListener('input', (e) => {
+                    state.params.curveStrength = parseFloat(e.target.value);
+                    elements.curveStrengthValue.textContent = e.target.value;
+               });
+          }
+
+          function drawCurve(ctx, width, height, type, points = []) {
+               ctx.clearRect(0, 0, width, height);
+
+               // 网格
+               ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+               ctx.lineWidth = 1;
+               ctx.beginPath();
+               ctx.moveTo(0, height / 2);
+               ctx.lineTo(width, height / 2);
+               ctx.moveTo(width / 2, 0);
+               ctx.lineTo(width / 2, height);
+               ctx.stroke();
+
+               // 曲线
+               ctx.strokeStyle = '#3b82f6';
+               ctx.lineWidth = 2;
+               ctx.beginPath();
+
+               if (type === 'custom' && points.length > 0) {
+                    ctx.moveTo(points[0].x, points[0].y);
+                    for (let i = 1; i < points.length; i++) {
+                         ctx.lineTo(points[i].x, points[i].y);
+                    }
+               } else {
+                    ctx.moveTo(0, height);
+                    const steps = 50;
+                    for (let i = 0; i <= steps; i++) {
+                         const x = (i / steps) * width;
+                         let y;
+
+                         switch (type) {
+                              case 'linear':
+                                   y = height - (i / steps) * height;
+                                   break;
+                              case 's':
+                                   y = height - (Math.pow(i / steps, 3) * height);
+                                   break;
+                              case 'inverse':
+                                   y = (i / steps) * height;
+                                   break;
+                              case 'gamma':
+                                   y = height - (Math.pow(i / steps, 0.5) * height);
+                                   break;
+                              default:
+                                   y = height - (i / steps) * height;
+                         }
+                         ctx.lineTo(x, y);
+                    }
+               }
+
+               ctx.stroke();
+          }
+
+          function generateCurvePoints(type) {
+               const points = [];
+               const steps = 20;
+
+               for (let i = 0; i <= steps; i++) {
+                    const x = Math.round((i / steps) * 255);
+                    let y;
+
+                    switch (type) {
+                         case 'linear':
+                              y = 255 - Math.round((i / steps) * 255);
+                              break;
+                         case 's':
+                              y = 255 - Math.round(Math.pow(i / steps, 3) * 255);
+                              break;
+                         case 'inverse':
+                              y = Math.round((i / steps) * 255);
+                              break;
+                         case 'gamma':
+                              y = 255 - Math.round(Math.pow(i / steps, 0.5) * 255);
+                              break;
+                    }
+
+                    points.push({ x, y });
+               }
+
+               state.curve.points = points;
+               state.curve.enabled = true;
+          }
+
+          // ==================== 预设系统 ====================
+          function applyPreset(preset) {
+               if (preset === 'reset') {
+                    resetAllParameters();
+                    return;
+               }
+
+               // 重置当前参数
+               resetParameters(false);
+
+               switch (preset) {
+                    case 'vintage':
+                         state.params.brightness = -10;
+                         state.params.contrast = 20;
+                         state.params.saturation = -30;
+                         state.params.lightness = 10;
+                         state.currentFilter = 'normal';
+                         generateCurvePoints('s');
+                         break;
+                    case 'cold':
+                         state.params.brightness = 5;
+                         state.params.contrast = 15;
+                         state.params.saturation = -20;
+                         state.params.hue = 200;
+                         state.currentFilter = 'bw';
+                         break;
+                    case 'warm':
+                         state.params.brightness = 10;
+                         state.params.contrast = 10;
+                         state.params.saturation = 20;
+                         state.params.hue = 30;
+                         state.currentFilter = 'none';
+                         break;
+                    case 'dramatic':
+                         state.params.brightness = -15;
+                         state.params.contrast = 40;
+                         state.params.saturation = 40;
+                         state.currentFilter = 'high';
+                         generateCurvePoints('inverse');
+                         break;
+                    case 'clear':
+                         state.params.brightness = 10;
+                         state.params.contrast = 25;
+                         state.params.sharpen = 30;
+                         state.params.denoise = 10;
+                         state.currentFilter = 'none';
+                         break;
+               }
+
+               updateParameterUI();
+               updateFilterUI();
+               showToast(`已应用${preset}预设`, 'success');
+          }
+
+          // ==================== 摄像头控制 ====================
+          async function switchCamera() {
+               if (!state.stream) {
+                    showToast('请先启动相机', 'error');
+                    return;
+               }
+
+               state.currentCamera = state.currentCamera === 'user' ? 'environment' : 'user';
+
+               try {
+                    showStatus('正在切换摄像头...');
+
+                    // 停止当前流
+                    state.stream.getTracks().forEach(track => track.stop());
+
+                    // 获取新流
+                    const newStream = await navigator.mediaDevices.getUserMedia({
+                         video: {
+                              facingMode: state.currentCamera,
+                              width: { ideal: 1280 },
+                              height: { ideal: 720 }
+                         },
+                         audio: false
+                    });
+
+                    state.stream = newStream;
+                    elements.video.srcObject = newStream;
+
+                    await elements.video.play();
+                    await new Promise(resolve => {
+                         if (elements.video.readyState >= 2) resolve();
+                         else elements.video.onloadedmetadata = resolve;
+                    });
+
+                    // 重新设置画布（尺寸可能不同）
+                    setupCanvas();
+
+                    hideStatus();
+                    showToast(`已切换到${state.currentCamera === 'user' ? '前置' : '后置'}摄像头`, 'success');
+
+               } catch (error) {
+                    hideStatus();
+                    showToast('切换失败: ' + error.message, 'error');
+                    // 恢复原摄像头
+                    state.currentCamera = state.currentCamera === 'user' ? 'environment' : 'user';
+               }
+          }
+
+          function toggleFlash() {
+               const modes = ['off', 'on', 'auto'];
+               const currentIndex = modes.indexOf(state.flashMode);
+               state.flashMode = modes[(currentIndex + 1) % modes.length];
+
+               const icons = { off: '⚡', on: '💡', auto: '⚡' };
+               elements.flashBtn.textContent = icons[state.flashMode];
+               elements.flashBtn.style.color = state.flashMode !== 'off' ? '#ff9100' : 'var(--text-primary)';
+
+               const names = { off: '关', on: '开', auto: '自动' };
+               showToast(`闪光灯: ${names[state.flashMode]}`, 'info');
+
+               // 实际闪光灯控制（如果支持）
+               if (state.stream) {
+                    const track = state.stream.getVideoTracks()[0];
+                    if (track?.getCapabilities?.().torch) {
+                         track.applyConstraints({
+                              advanced: [{ torch: state.flashMode === 'on' }]
+                         }).catch(() => { });
+                    }
+               }
+          }
+
+          // ==================== 拍照 ====================
+          async function capturePhoto() {
+               if (state.isProcessing) return;
+               state.isProcessing = true;
+               elements.captureBtn.disabled = true;
+
+               try {
+                    // 闪光灯效果
+                    if (state.flashMode === 'on' || state.flashMode === 'auto') {
+                         elements.cameraFlash.classList.add('active');
+                         setTimeout(() => elements.cameraFlash.classList.remove('active'), 300);
+                    }
+
+                    // 创建临时画布
+                    const tempCanvas = document.createElement('canvas');
+                    tempCanvas.width = state.canvas.width;
+                    tempCanvas.height = state.canvas.height;
+                    const tempCtx = tempCanvas.getContext('2d');
+                    tempCtx.drawImage(state.canvas, 0, 0);
+
+                    // 转换为Blob
+                    const blob = await new Promise(resolve => {
+                         tempCanvas.toBlob(resolve, 'image/png', 1.0);
+                    });
+
+                    // 创建URL
+                    const url = URL.createObjectURL(blob);
+                    state.capturedImage = url;
+
+                    // 显示下载按钮
+                    elements.downloadBtn.style.display = 'flex';
+                    elements.downloadBtn.onclick = () => downloadImage(url);
+
+                    // 尝试分享
+                    if (navigator.share && navigator.canShare) {
+                         const file = new File([blob], `negative_${Date.now()}.png`, { type: 'image/png' });
+                         if (navigator.canShare({ files: [file] })) {
+                              await navigator.share({
+                                   files: [file],
+                                   title: '负片照片',
+                                   text: '通过负片相机拍摄'
+                              });
+                              showToast('已分享/保存', 'success');
+                         } else {
+                              showToast('照片已准备，点击下载', 'success');
+                         }
+                    } else {
+                         showToast('照片已准备，点击下载', 'success');
+                    }
+
+                    // 小米协同 - 同步照片
+                    if (state.miSync.connected && state.miSync.ws) {
+                         try {
+                              const reader = new FileReader();
+                              reader.onload = () => {
+                                   state.miSync.ws.send(JSON.stringify({
+                                        type: 'photo',
+                                        data: reader.result,
+                                        timestamp: Date.now()
+                                   }));
+                              };
+                              reader.readAsDataURL(blob);
+                              showToast('已同步到小米设备', 'success');
+                         } catch (e) {
+                              console.error('小米同步失败', e);
+                         }
+                    }
+
+               } catch (error) {
+                    showToast('拍照失败: ' + error.message, 'error');
+               } finally {
+                    state.isProcessing = false;
+                    elements.captureBtn.disabled = false;
+               }
+          }
+
+          function downloadImage(url) {
+               const a = document.createElement('a');
+               a.href = url;
+               a.download = `negative_${Date.now()}.png`;
+               document.body.appendChild(a);
+               a.click();
+               document.body.removeChild(a);
+               showToast('开始下载', 'success');
+          }
+
+          // ==================== 小米协同 ====================
+          function initMiSync() {
+               // 模拟小米设备发现（实际需要小米SDK）
+               elements.miScanBtn.addEventListener('click', () => {
+                    elements.miDeviceModal.style.display = 'flex';
+                    elements.miScanResult.innerHTML = '正在扫描小米设备...<br><br>提示: 实际集成需要小米IoT SDK<br>此处为演示界面<br><br>模拟设备:<br>📱 Xiaomi13 Pro<br>📷 Mi Camera 2';
+
+                    // 模拟发现
+                    setTimeout(() => {
+                         state.miSync.devices = [
+                              { id: 'mi_13_pro', name: 'Xiaomi 13 Pro', type: 'phone' },
+                              { id: 'mi_camera', name: 'Mi Camera 2', type: 'camera' }
+                         ];
+                         elements.miScanResult.innerHTML = '发现2个设备:<br><br>1. Xiaomi 13 Pro<br>2. Mi Camera 2<br><br>点击"连接"进行配对';
+                    }, 1500);
+               });
+
+               // 连接设备
+               elements.miModalConnect.addEventListener('click', () => {
+                    if (state.miSync.devices.length === 0) {
+                         showToast('未发现设备', 'error');
+                         return;
+                    }
+
+                    elements.miScanResult.innerHTML = '正在连接 Xiaomi 13 Pro...<br><br>请在设备上确认授权';
+
+                    setTimeout(() => {
+                         // 模拟WebSocket连接
+                         state.miSync.connected = true;
+                         state.miSync.device = state.miSync.devices[0];
+
+                         // 创建模拟WebSocket
+                         state.miSync.ws = {
+                              send: (data) => {
+                                   console.log('[小米协同] 发送数据:', data);
+                                   showToast('指令已发送', 'info');
+                              },
+                              close: () => {
+                                   state.miSync.connected = false;
+                                   state.miSync.ws = null;
+                              }
+                         };
+
+                         // 更新UI
+                         elements.miStatus.textContent = '已连接';
+                         elements.miStatus.classList.add('connected');
+                         elements.miStatusBadge.style.display = 'inline';
+                         elements.miSyncPanel.style.display = 'block';
+                         elements.miDeviceList.classList.add('show');
+                         elements.miDeviceList.innerHTML = '已连接: Xiaomi 13 Pro<br>模式: 远程摄像头协同';
+
+                         elements.miDeviceModal.style.display = 'none';
+                         showToast('小米设备连接成功', 'success');
+                    }, 2000);
+               });
+
+               // 关闭弹窗
+               elements.miModalClose.addEventListener('click', () => {
+                    elements.miDeviceModal.style.display = 'none';
+               });
+
+               // 远程控制
+               elements.miRemoteBtn.addEventListener('click', () => {
+                    if (!state.miSync.connected) {
+                         showToast('请先连接小米设备', 'error');
+                         return;
+                    }
+                    showToast('远程控制已激活', 'info');
+                    // 实际实现会调用小米SDK的远程控制API
+               });
+
+               // 同步参数
+               elements.miSyncParamsBtn.addEventListener('click', () => {
+                    if (!state.miSync.connected) {
+                         showToast('请先连接小米设备', 'error');
+                         return;
+                    }
+
+                    const params = {
+                         filter: state.currentFilter,
+                         brightness: state.params.brightness,
+                         contrast: state.params.contrast,
+                         saturation: state.params.saturation,
+                         hue: state.params.hue,
+                         lightness: state.params.lightness,
+                         curve: state.curve.type
+                    };
+
+                    state.miSync.ws.send(JSON.stringify({
+                         type: 'params',
+                         data: params
+                    }));
+
+                    showToast('参数已同步到小米设备', 'success');
+               });
+
+               // 顶部按钮
+               elements.miSyncTopBtn.addEventListener('click', () => {
+                    if (!state.miSync.connected) {
+                         elements.miDeviceModal.style.display = 'flex';
+                         elements.miScanResult.innerHTML = '点击"扫描设备"查找小米设备<br><br>需要:<br>1. 同一WiFi网络<br>2. 小米账号登录<br>3. 设备授权';
+                    } else {
+                         // 显示/隐藏协同面板
+                         elements.miSyncPanel.style.display = elements.miSyncPanel.style.display === 'none' ? 'block' : 'none';
+                    }
+               });
+          }
+
+          // ==================== UI 事件 ====================
+          function initUIEvents() {
+               // 权限屏幕
+               elements.startBtn.addEventListener('click', initCamera);
+               elements.miSyncBtn.addEventListener('click', () => {
+                    if (checkEnvironment()) {
+                         elements.miDeviceModal.style.display = 'flex';
+                         elements.miScanResult.innerHTML = '需要先启动相机<br>然后连接小米设备<br><br>点击"开始使用"继续';
+                    }
+               });
+
+               // 性能监控
+               elements.perfBtn.addEventListener('click', () => {
+                    state.ui.showPerf = !state.ui.showPerf;
+                    elements.perfMonitor.classList.toggle('show', state.ui.showPerf);
+                    elements.perfBtn.classList.toggle('active', state.ui.showPerf);
+                    showToast(state.ui.showPerf ? '性能监控已开启' : '性能监控已关闭', 'info');
+               });
+
+               // 面板折叠
+               elements.panelToggle.addEventListener('click', () => {
+                    state.ui.collapsed = !state.ui.collapsed;
+                    elements.controlPanel.classList.toggle('collapsed', state.ui.collapsed);
+               });
+
+               // 滤镜选择
+               elements.filterContainer.addEventListener('click', (e) => {
+                    const chip = e.target.closest('.filter-chip');
+                    if (!chip) return;
+
+                    elements.filterContainer.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+                    chip.classList.add('active');
+                    state.currentFilter = chip.dataset.filter;
+                    showToast(`已切换到${chip.textContent}`, 'success');
+               });
+
+               // 参数调整
+               const paramControls = [
+                    { element: elements.brightness, key: 'brightness', display: elements.brightnessValue },
+                    { element: elements.contrast, key: 'contrast', display: elements.contrastValue },
+                    { element: elements.saturation, key: 'saturation', display: elements.saturationValue },
+                    { element: elements.hue, key: 'hue', display: elements.hueValue },
+                    { element: elements.lightness, key: 'lightness', display: elements.lightnessValue },
+                    { element: elements.sharpen, key: 'sharpen', display: elements.sharpenValue },
+                    { element: elements.denoise, key: 'denoise', display: elements.denoiseValue }
+               ];
+
+               paramControls.forEach(({ element, key, display }) => {
+                    element.addEventListener('input', (e) => {
+                         const value = parseFloat(e.target.value);
+                         state.params[key] = value;
+                         display.textContent = value;
+                    });
+               });
+
+               // 显示/隐藏高级选项
+               elements.toggleAdvancedBtn.addEventListener('click', () => {
+                    state.ui.showAdvanced = !state.ui.showAdvanced;
+                    elements.advancedGroup.style.display = state.ui.showAdvanced ? 'grid' : 'none';
+                    elements.toggleAdvancedBtn.textContent = state.ui.showAdvanced ? '隐藏高级' : '显示高级';
+               });
+
+               elements.toggleHslBtn.addEventListener('click', () => {
+                    state.ui.showHsl = !state.ui.showHsl;
+                    elements.hslGroup.style.display = state.ui.showHsl ? 'grid' : 'none';
+                    elements.toggleHslBtn.textContent = state.ui.showHsl ? '隐藏HSL' : '显示HSL';
+               });
+
+               // 预设按钮
+               document.querySelectorAll('.preset-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                         applyPreset(btn.dataset.preset);
+                    });
+               });
+
+               // 摄像头控制
+               elements.switchCameraBtn.addEventListener('click', switchCamera);
+               elements.resetAllBtn.addEventListener('click', resetAllParameters);
+
+               // 拍摄控制
+               elements.captureBtn.addEventListener('click', capturePhoto);
+               elements.flashBtn.addEventListener('click', toggleFlash);
+
+               // 小米协同
+               initMiSync();
+
+               // 键盘快捷键
+               document.addEventListener('keydown', (e) => {
+                    if (elements.appUI.style.display === 'none') return;
+
+                    switch (e.key) {
+                         case ' ':
+                              e.preventDefault();
+                              capturePhoto();
+                              break;
+                         case 'f':
+                         case 'F':
+                              toggleFlash();
+                              break;
+                         case 's':
+                         case 'S':
+                              switchCamera();
+                              break;
+                         case 'g':
+                         case 'G':
+                              state.ui.collapsed = !state.ui.collapsed;
+                              elements.controlPanel.classList.toggle('collapsed', state.ui.collapsed);
+                              break;
+                         case 'p':
+                         case 'P':
+                              state.ui.showPerf = !state.ui.showPerf;
+                              elements.perfMonitor.classList.toggle('show', state.ui.showPerf);
+                              break;
+                    }
+               });
+          }
+
+          // ==================== 参数重置 ====================
+          function resetParameters(updateUI = true) {
+               state.params = {
+                    brightness: 0,
+                    contrast: 0,
+                    hue: 0,
+                    saturation: 0,
+                    lightness: 0,
+                    sharpen: 0,
+                    denoise: 0,
+                    curveStrength: 1.0
+               };
+               state.curve.enabled = false;
+               state.curve.points = [];
+
+               if (updateUI) {
+                    updateParameterUI();
+                    showToast('参数已重置', 'info');
+               }
+          }
+
+          function resetAllParameters() {
+               resetParameters(false);
+               state.currentFilter = 'normal';
+               state.curve.enabled = false;
+               updateParameterUI();
+               updateFilterUI();
+
+               // 重置曲线画布
+               if (elements.curveCanvas && elements.curveCanvas.getContext) {
+                    const ctx = elements.curveCanvas.getContext('2d');
+                    drawCurve(ctx, elements.curveCanvas.width, elements.curveCanvas.height, 'linear');
+               }
+
+               //重置按钮状态
+               if (elements.curveButtons) {
+                    elements.curveButtons.forEach(b => b.classList.remove('active'));
+               }
+
+               showToast('全部参数已重置', 'success');
+          }
+
+          function updateParameterUI() {
+               elements.brightness.value = state.params.brightness;
+               elements.brightnessValue.textContent = state.params.brightness;
+
+               elements.contrast.value = state.params.contrast;
+               elements.contrastValue.textContent = state.params.contrast;
+
+               elements.saturation.value = state.params.saturation;
+               elements.saturationValue.textContent = state.params.saturation;
+
+               elements.hue.value = state.params.hue;
+               elements.hueValue.textContent = state.params.hue;
+
+               elements.lightness.value = state.params.lightness;
+               elements.lightnessValue.textContent = state.params.lightness;
+
+               elements.sharpen.value = state.params.sharpen;
+               elements.sharpenValue.textContent = state.params.sharpen;
+
+               elements.denoise.value = state.params.denoise;
+               elements.denoiseValue.textContent = state.params.denoise;
+
+               elements.curveStrength.value = state.params.curveStrength;
+               elements.curveStrengthValue.textContent = state.params.curveStrength;
+          }
+
+          function updateFilterUI() {
+               const chips = elements.filterContainer.querySelectorAll('.filter-chip');
+               chips.forEach(chip => {
+                    chip.classList.toggle('active', chip.dataset.filter === state.currentFilter);
+               });
+          }
+
+          // ==================== 页面初始化 ====================
+          window.addEventListener('DOMContentLoaded', () => {
+               // 检查环境
+               if (!checkEnvironment()) {
+                    elements.startBtn.disabled = true;
+                    elements.startBtn.textContent = '环境检查失败';
+               }
+
+               // 检查权限
+               if (navigator.permissions && navigator.permissions.query) {
+                    navigator.permissions.query({ name: 'camera' }).then(result => {
+                         if (result.state === 'granted') {
+                              elements.startBtn.textContent = '摄像头已就绪，点击开始';
+                         }
+                    }).catch(() => { });
+               }
+
+               // 初始化UI事件
+               initUIEvents();
+
+               // 显示提示
+               if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+                    showToast('本地服务器模式 ✅', 'success');
+               } else if (location.protocol === 'https:') {
+                    showToast('HTTPS安全模式 ✅', 'success');
+               }
+          });
+
+          // 页面卸载清理
+          window.addEventListener('beforeunload', () => {
+               if (state.stream) {
+                    state.stream.getTracks().forEach(track => track.stop());
+               }
+               if (state.animationId) {
+                    cancelAnimationFrame(state.animationId);
+               }
+               if (state.miSync.ws) {
+                    state.miSync.ws.close();
+               }
+          });
+     </script>
+</body>
+
+</html>
